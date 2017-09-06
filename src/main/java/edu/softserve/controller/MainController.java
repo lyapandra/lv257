@@ -1,19 +1,20 @@
 package edu.softserve.controller;
 
+import edu.softserve.entity.ResourceType;
 import edu.softserve.entity.User;
 import edu.softserve.service.PrivilegeService;
+import edu.softserve.service.ResourceTypeService;
 import edu.softserve.service.RoleService;
 import edu.softserve.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -21,12 +22,13 @@ import java.util.Map;
 public class MainController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    RoleService roleService;
-
+    private RoleService roleService;
     @Autowired
-    PrivilegeService privilegeService;
+    private ResourceTypeService resourceTypeService;
+    @Autowired
+    private PrivilegeService privilegeService;
 
     @RequestMapping(value = { "/", "/welcome" }, method = RequestMethod.GET)
     public String welcomePage(Model model) {
@@ -51,8 +53,17 @@ public class MainController {
         return "lookup";
     }
 
+
+    /**
+     * Return <b>ResourcesAdd.htlm</b> page.
+     *
+     * @param model
+     * @return <b>ResourcesAdd.htlm</b> page.
+     */
     @RequestMapping(value = "/resources", method = RequestMethod.GET)
     public String resourcesPage(Model model) {
+        List<ResourceType> resourceTypes = resourceTypeService.getTypesStab();
+        model.addAttribute("resourceTypes", resourceTypes);
         return "resources";
     }
 

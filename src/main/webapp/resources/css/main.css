@@ -59,4 +59,11 @@ font-weight: normal;
 	margin-bottom: 20px;
 }
 
+/* Oleg */
+.padding_bottom_15{
+  padding-bottom: 15px;
+}
 
+.display_none{
+  display: none;
+}

@@ -19,7 +19,7 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 // Load to Environment.
-@PropertySource("classpath:database.properties")
+@PropertySource("classpath:myDatabase.properties")
 public class DBConfig {
     // The Environment class serves as the property holder
     // and stores all the properties loaded by the @PropertySource
