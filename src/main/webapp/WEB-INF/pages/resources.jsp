@@ -398,6 +398,8 @@
                         <button type="submit" class="btn btn-success">Register new resource</button>
                     </div>
 
+                    <a href="/add_address_stub">addAddressStub1</a>
+                    <a href="/get_address_by_id">Get address by id</a>
 
                 </form>
 

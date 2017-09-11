@@ -1,21 +1,29 @@
 package edu.softserve.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
+@Builder
+
+@Entity
 /**
  * Main purpose of Address entity is to bind every {@code User}, {@code Owner}
  * and {@code Resource} to a particular location.
  */
 public class Address {
 
+    @Id()
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String country;
     private String region;
@@ -26,51 +34,6 @@ public class Address {
     private int building;
     private String block;
     private int apartment;
-
-    public Address setCountry(String country) {
-        this.country = country;
-        return this;
-    }
-
-    public Address setRegion(String region) {
-        this.region = region;
-        return this;
-    }
-
-    public Address setDistrict(String district) {
-        this.district = district;
-        return this;
-    }
-
-    public Address setPostalIndex(String postalIndex) {
-        this.postalIndex = postalIndex;
-        return this;
-    }
-
-    public Address setLocality(String locality) {
-        this.locality = locality;
-        return this;
-    }
-
-    public Address setStreet(String street) {
-        this.street = street;
-        return this;
-    }
-
-    public Address setBuilding(int building) {
-        this.building = building;
-        return this;
-    }
-
-    public Address setBlock(String block) {
-        this.block = block;
-        return this;
-    }
-
-    public Address setApartment(int apartment) {
-        this.apartment = apartment;
-        return this;
-    }
 
 }
 
