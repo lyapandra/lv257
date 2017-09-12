@@ -481,7 +481,13 @@
     /* Generates resource addres form in the pop-up */
     $('#add_resource_address_btn').on('click', function () {
         var placeholder = $('#resource_address_form_placeholder');
-        addAddressForm("resource", placeholder);
+        var addressFormAndBtn = addAddressForm("resource", placeholder);
+        var addressFormId = addressFormAndBtn[0];
+        var submitButtonId = addressFormAndBtn[1];
+
+        parseFormAndSaveResource(addressFormAndBtn);
+//        alert(addressFormId);
+//        alert(submitButtonId);
     });
 
     /* Generate owner form depending on owner type */
@@ -525,6 +531,7 @@
         });
 
         formPlaceholder.append(form);
+
         appendRows(form, forWhat, rows);
         var btnId = appendButton(form, forWhat, "Add address", false, false);
         appendButton(form, forWhat, "Register new Owner", true, true);
@@ -540,13 +547,26 @@
 
     /**
      * Dynamic adding address form
+     * Takes:
+     * string   - forWhat - purpose of this form, needed to generate button id
+     * element  - formPlaceholder - div element, in which form will be placed
+     *
+     * Returns:
+     * array, where first element - id of generated form
+     *              second element - id of submit button
      */
     function addAddressForm(addressFor, formPlaceholder) {
+        // clears div element
         formPlaceholder.empty();
+
+        // id for the form
+        var formId = addressFor + '_address_form';
         var form = $('<form/>', {
-            class: 'form'
+            class: 'form',
+            id: formId
         });
 
+        // inputs for the address form
         var rows = [
             [new FieldAndSize('Country', 6, 'Ukraine'), new FieldAndSize('Region', 6, 'Region')],
             [new FieldAndSize('Distinct', 6, 'District'), new FieldAndSize('Postal Index', 6, '79060')],
@@ -557,69 +577,54 @@
         formPlaceholder.append(form);
         appendRows(form, addressFor, rows);
         var addressSubmitButtonId = appendButton(form, addressFor, "Register new Address", true, true);
-        return addressSubmitButtonId;
+        return [formId, addressSubmitButtonId];
     }
 
-    /* Appending rows*/
-    function appendRows(form, forWhat, rows) {
-        for (var i = 0; i < rows.length; i++) {
-            var row = $('<div/>', {
-                class: 'row'
-            });
-            form.append(row);
+    function parseFormAndSaveResource(addressFormAndBtn){
+        var addressFormId = addressFormAndBtn[0];
+        var submitButtonId = addressFormAndBtn[1];
+        var form = $('#' + addressFormId);
+        var button = $('#' + submitButtonId);
+        button.on('click', function (e) {
+            e.preventDefault();
+            var json = toJSONString(addressFormId);
 
-            for (var j = 0; j < rows[i].length; j++) {
-                var col = $('<div/>', {
-                    class: 'col-sm-' + rows[i][j].size
-                });
-                row.append(col);
+            $.ajax({
+                type: "POST",
+                contentType: "text/plain",
+                url: "/resources/address",
+                data: json,
+                success: function (result) {
+                    alert(result)
+                }
+            })
+        })
 
-                var formGroup = $('<div/>', {
-                    class: 'form-group',
-                });
-                col.append(formGroup);
-                var label = $('<label/>', {
-                    for: rows[i][j].fieldName + "_" + forWhat,
-                    text: rows[i][j].fieldName
-                });
-                formGroup.append(label);
+    }
 
-                var input = $('<input/>', {
-                    type: 'text',
-                    class: 'form-control',
-                    id: rows[i][j].fieldName + "_" + forWhat,
-                    placeholder: rows[i][j].placeholder
-                });
-                formGroup.append(input);
+    /**
+     * This function gets all inputs of a particular form.
+     * Takes as a parameter form id.
+     * Returns string containing json representation ('field': 'value' ...).
+     *
+     */
+    function toJSONString( form ) {
+        var obj = {};
+        var elements = $('#' + form + ' input');
+        for( var i = 0; i < elements.length; i++ ) {
+            var element = elements[i];
+            var name = element.name;
+            var value = element.value;
+
+            if( name ) {
+                obj[ name ] = value;
             }
         }
+        alert(JSON.stringify( obj ));
+        return JSON.stringify( obj );
     }
 
-    /* Appending submit button*/
-    function appendButton(form, forWhat, text, right, success) {
-        var successButton = $('<button/>', {
-            class: 'btn' +
-            (right ? ' pull-right ' : ' pull-left ') +
-            (success ? ' btn-success ' : ' btn-primary '),
-            type: 'submit',
-            text: text,
-            id: forWhat + '_custom_btn'
-        });
-        var clearfix = $('<div/>', {
-            class: 'clearfix'
-        });
-        form.append(successButton);
-        form.append(clearfix);
-        var tempId = forWhat + '_custom_btn';
-        return tempId;
-    }
 
-    /* Custom object for dynamic form building */
-    function FieldAndSize(fieldName, size, placeholder) {
-        this.fieldName = fieldName;
-        this.size = size;
-        this.placeholder = placeholder;
-    }
 
 </script>
 

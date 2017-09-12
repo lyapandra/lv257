@@ -79,3 +79,82 @@ $(document).ready(function(){
     });
 
 });
+
+/**
+ * Custom object for dynamic form building.
+ * Holds fieldName, size of column and placeholder for the input
+ *
+ */
+function FieldAndSize(fieldName, size, placeholder) {
+    this.fieldName = fieldName;
+    this.size = size;
+    this.placeholder = placeholder;
+}
+
+/** Appending submit button to the form.
+ * Takes:
+ * element  - form itself,
+ * string   - forWhat - purpose of this button, needed to generate button id
+ * string   - text - text that will be placed on button
+ * boolean  - right - if true, btn will be placed in the right corner, if not - left
+ * boolean  - success - if true, btn will green , if not - blue
+ *
+ */
+function appendButton(form, forWhat, text, right, success) {
+    var successButton = $('<button/>', {
+        class: 'btn' +
+        (right ? ' pull-right ' : ' pull-left ') +
+        (success ? ' btn-success ' : ' btn-primary '),
+        type: 'submit',
+        text: text,
+        id: forWhat + '_custom_btn'
+    });
+    var clearfix = $('<div/>', {
+        class: 'clearfix'
+    });
+    form.append(successButton);
+    form.append(clearfix);
+    var tempId = forWhat + '_custom_btn';
+    return tempId;
+}
+
+/** Appending rows.
+ * Each row in the array is the <div class="row"> and may have one
+ * or more input tages.
+ * This method genertes all this element and append them to each other
+ * and to the giveb form.
+ */
+function appendRows(form, forWhat, rows) {
+    for (var i = 0; i < rows.length; i++) {
+        var row = $('<div/>', {
+            class: 'row'
+        });
+        form.append(row);
+
+        for (var j = 0; j < rows[i].length; j++) {
+            var col = $('<div/>', {
+                class: 'col-sm-' + rows[i][j].size
+            });
+            row.append(col);
+
+            var formGroup = $('<div/>', {
+                class: 'form-group',
+            });
+            col.append(formGroup);
+            var label = $('<label/>', {
+                for: rows[i][j].fieldName + "_" + forWhat,
+                text: rows[i][j].fieldName
+            });
+            formGroup.append(label);
+
+            var input = $('<input/>', {
+                type: 'text',
+                class: 'form-control',
+                name : rows[i][j].fieldName,
+                id: rows[i][j].fieldName + "_" + forWhat,
+                placeholder: rows[i][j].placeholder
+            });
+            formGroup.append(input);
+        }
+    }
+}
