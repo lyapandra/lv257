@@ -1,6 +1,7 @@
 package edu.softserve.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -25,14 +26,32 @@ public class Address {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @JsonProperty("country")
     private String country;
+
+    @JsonProperty("region")
     private String region;
+
+    @JsonProperty("district")
     private String district;
+
+    @JsonProperty("postal index")
     private String postalIndex;
+
+    @JsonProperty("locality")
     private String locality;
+
+    @JsonProperty("street")
     private String street;
+
+    @JsonProperty("building")
     private int building;
+
+    @JsonProperty("block")
     private String block;
+
+    @JsonProperty("apartment")
     private int apartment;
 
 }

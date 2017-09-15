@@ -320,6 +320,9 @@
                                         </div>
 
                                         <div id="owner_form">
+
+                                            <%--Here owner form and owner address form will be rendered--%>
+
                                             <div id="resource_owner_form">
 
 
@@ -382,6 +385,11 @@
                         </div>
                     </div>
 
+                    <div id="resource_address_id_input">
+
+                        <%--May be I will rendder hidder input here with resource address id.--%>
+
+                    </div>
 
                     <%--CONCRETE RESOURCE TYPE CHARACTERISTICS--%>
 
@@ -397,9 +405,6 @@
                     <div class="padding_bottom_15">
                         <button type="submit" class="btn btn-success">Register new resource</button>
                     </div>
-
-                    <a href="/add_address_stub">addAddressStub1</a>
-                    <a href="/get_address_by_id">Get address by id</a>
 
                 </form>
 
@@ -466,13 +471,6 @@
                         id: parse.rP[i].name,
                     });
                     div.append(input);
-
-//                    Old Version
-//                    var div = "<div class=\"form-group\">" +
-//                        "<label for=\"" + parse.rP[i].name + "\">" + parse.rP[i].name + "</label>" +
-//                        "<input type=\"text\" class=\"form-control\" id=\"" + parse.rP[i].name + "\" \>" +
-//                        "</div>";
-
                 }
             }
         });
@@ -481,13 +479,10 @@
     /* Generates resource addres form in the pop-up */
     $('#add_resource_address_btn').on('click', function () {
         var placeholder = $('#resource_address_form_placeholder');
-        var addressFormAndBtn = addAddressForm("resource", placeholder);
-        var addressFormId = addressFormAndBtn[0];
-        var submitButtonId = addressFormAndBtn[1];
+        var addressFormAndBtn = addAddressForm("resource", placeholder, fieldsMetadata.rowsForAddress);
 
-        parseFormAndSaveResource(addressFormAndBtn);
-//        alert(addressFormId);
-//        alert(submitButtonId);
+        parseFormAndSaveResource(placeholder, addressFormAndBtn);
+
     });
 
     /* Generate owner form depending on owner type */
@@ -496,31 +491,14 @@
         var formPlaceholder = $('#resource_owner_form');
         var resourceAddressForm = $('#owner_address_form');
 
-        var company = [
-            [new FieldAndSize('Full Name', 12, 'Full Name')],
-            [new FieldAndSize('Short Name', 6, 'Short Name'), new FieldAndSize('Orgsnization Form', 6, 'TzOV')],
-            [new FieldAndSize('CEO', 12, 'CEO')],
-            [new FieldAndSize('Phone', 12, '+380679365998')]
-        ];
-
-        var person = [
-            [new FieldAndSize('First Name', 6, 'First Name'), new FieldAndSize('Last Name', 6, 'Last Name')],
-            [new FieldAndSize('Middle Name', 12, 'Middle Name')],
-            [new FieldAndSize('Passport Series', 3, 'KC'), new FieldAndSize('Passport Number', 4, '149875'), new FieldAndSize('Personal Phone', 5, '+30679365998')]
-        ];
-
         if (ownerType == 1) {
             formPlaceholder.empty();
             resourceAddressForm.empty();
+        } else if (ownerType == 2) {
+            addOwnerForm(formPlaceholder, resourceAddressForm, "company", fieldsMetadata.rowsForCompany);
+        } else if (ownerType == 3) {
+            addOwnerForm(formPlaceholder, resourceAddressForm, "person", fieldsMetadata.rowsForPerson);
         }
-        if (ownerType == 2) {
-            addOwnerForm(formPlaceholder, resourceAddressForm, "company", company);
-        }
-        if (ownerType == 3) {
-            addOwnerForm(formPlaceholder, resourceAddressForm, "person", person);
-        }
-
-
     });
 
     function addOwnerForm(formPlaceholder, resourceAddressForm, forWhat, rows) {
@@ -529,20 +507,40 @@
         var form = $('<form/>', {
             class: 'form'
         });
-
         formPlaceholder.append(form);
 
         appendRows(form, forWhat, rows);
         var btnId = appendButton(form, forWhat, "Add address", false, false);
-        appendButton(form, forWhat, "Register new Owner", true, true);
+        var registerOwnerButtonId = appendButton(form, forWhat, "Register new Owner", true, true);
 
-        var companyAddresBtn = $('#' + btnId);
-        companyAddresBtn.on('click', function (e) {
+        $('#' + registerOwnerButtonId).on('click', function (e) {
             e.preventDefault();
-            $(this).hide();
+            alert(registerOwnerButtonId);
+            console.log("wtf");
+        });
 
-            addAddressForm("company", resourceAddressForm);
-        })
+        var $companyAddAddresBtn = $('#' + btnId);
+
+        var $addressDiv = $('<div/>', {
+            id: 'ghostDiv'
+        });
+
+        var addressFormIdAndBtn = addAddressForm(forWhat, $addressDiv, fieldsMetadata.rowsForAddress);
+
+        var $addressBtn = $('#' + addressFormIdAndBtn[1]);
+
+        $companyAddAddresBtn.on('click', function (e) {
+            e.preventDefault();
+            $(this).remove();
+            disableButton(registerOwnerButtonId, true);
+            resourceAddressForm.append($addressDiv);
+        });
+
+    };
+
+    function disableButton(buttonId, condition) {
+        var $button = $('#' + buttonId);
+        $button.prop('disabled', condition);
     }
 
     /**
@@ -555,7 +553,7 @@
      * array, where first element - id of generated form
      *              second element - id of submit button
      */
-    function addAddressForm(addressFor, formPlaceholder) {
+    function addAddressForm(addressFor, formPlaceholder, rows) {
         // clears div element
         formPlaceholder.empty();
 
@@ -566,40 +564,75 @@
             id: formId
         });
 
-        // inputs for the address form
-        var rows = [
-            [new FieldAndSize('Country', 6, 'Ukraine'), new FieldAndSize('Region', 6, 'Region')],
-            [new FieldAndSize('Distinct', 6, 'District'), new FieldAndSize('Postal Index', 6, '79060')],
-            [new FieldAndSize('Locality', 6, 'Locality'), new FieldAndSize('Street', 6, 'Shevchenka street')],
-            [new FieldAndSize('Building', 4, '35'), new FieldAndSize('Block', 4, 'A'), new FieldAndSize('Appartment', 4, '14')]
-        ];
-
         formPlaceholder.append(form);
         appendRows(form, addressFor, rows);
         var addressSubmitButtonId = appendButton(form, addressFor, "Register new Address", true, true);
         return [formId, addressSubmitButtonId];
     }
 
-    function parseFormAndSaveResource(addressFormAndBtn){
+    function addAddressFormWithoutBtn(addressFor, formPlaceholder, rows) {
+        // clears div element
+        formPlaceholder.empty();
+
+        // id for the form
+        var formId = addressFor + '_address_form';
+        var form = $('<form/>', {
+            class: 'form',
+            id: formId
+        });
+
+        formPlaceholder.append(form);
+        appendRows(form, addressFor, rows);
+        return formId;
+    }
+
+    function parseFormAndSaveResource(placeholder, addressFormAndBtn) {
         var addressFormId = addressFormAndBtn[0];
         var submitButtonId = addressFormAndBtn[1];
-        var form = $('#' + addressFormId);
+
         var button = $('#' + submitButtonId);
+        var returnStatus;
         button.on('click', function (e) {
             e.preventDefault();
             var json = toJSONString(addressFormId);
+            alert(json);
+
 
             $.ajax({
                 type: "POST",
                 contentType: "text/plain",
                 url: "/resources/address",
+                accept: "text/plain",
                 data: json,
                 success: function (result) {
-                    alert(result)
+                    closePopUp(placeholder);
                 }
             })
-        })
+        });
+    };
 
+    function closePopUp(placeholder) {
+
+        placeholder.empty();
+
+        var result = $('<div/>', {
+            text: 'Resource Address was saved'
+        });
+        var closePopUp = $('<button/>', {
+            text: 'Close',
+            class: 'btn btn-default pull-right clearfix'
+        });
+        var clear = $('<div/>', {
+            class: 'clearfix'
+        });
+
+        placeholder.append(result);
+        placeholder.append(closePopUp);
+        placeholder.append(clear);
+
+        closePopUp.on('click', function () {
+            $('#resourseAdressPopUp').modal('hide');
+        });
     }
 
     /**
@@ -608,23 +641,120 @@
      * Returns string containing json representation ('field': 'value' ...).
      *
      */
-    function toJSONString( form ) {
+    function toJSONString(form) {
         var obj = {};
         var elements = $('#' + form + ' input');
-        for( var i = 0; i < elements.length; i++ ) {
+        for (var i = 0; i < elements.length; i++) {
             var element = elements[i];
             var name = element.name;
             var value = element.value;
 
-            if( name ) {
-                obj[ name ] = value;
+            if (name) {
+                obj[name] = value;
             }
         }
-        alert(JSON.stringify( obj ));
-        return JSON.stringify( obj );
+        return JSON.stringify(obj);
     }
 
+    var fieldsMetadata = {
+        rowsForAddress: [
+            [new FieldAndSize('Country', 6, 'Ukraine'), new FieldAndSize('Region', 6, 'Region')],
+            [new FieldAndSize('District', 6, 'District'), new FieldAndSize('Postal Index', 6, '79060')],
+            [new FieldAndSize('Locality', 6, 'Locality'), new FieldAndSize('Street', 6, 'Shevchenka street')],
+            [new FieldAndSize('Building', 4, '35'), new FieldAndSize('Block', 4, 'A'), new FieldAndSize('Apartment', 4, '14')]
+        ],
 
+        rowsForCompany: [
+            [new FieldAndSize('Full Name', 12, 'Full Name')],
+            [new FieldAndSize('Short Name', 6, 'Short Name'), new FieldAndSize('Orgsnization Form', 6, 'TzOV')],
+            [new FieldAndSize('CEO', 12, 'CEO')],
+            [new FieldAndSize('Phone', 12, '+380679365998')]
+        ],
+
+        rowsForPerson: [
+            [new FieldAndSize('First Name', 6, 'First Name'), new FieldAndSize('Last Name', 6, 'Last Name')],
+            [new FieldAndSize('Middle Name', 12, 'Middle Name')],
+            [new FieldAndSize('Passport Series', 3, 'KC'), new FieldAndSize('Passport Number', 4, '149875'), new FieldAndSize('Personal Phone', 5, '+30679365998')]
+        ]
+    }
+
+    /**
+     * Custom object for dynamic form building.
+     * Holds uer friendly name, size of column, placeholder for the input and exactrly field name
+     *
+     */
+    function FieldAndSize(userFriendlyName, size, placeholder) {
+        this.userFriendlyName = userFriendlyName;
+        this.size = size;
+        this.placeholder = placeholder;
+    }
+
+    /** Appending submit button to the form.
+     * Takes:
+     * element  - form itself,
+     * string   - forWhat - purpose of this button, needed to generate button id
+     * string   - text - text that will be placed on button
+     * boolean  - right - if true, btn will be placed in the right corner, if not - left
+     * boolean  - success - if true, btn will green , if not - blue
+     *
+     */
+    function appendButton(form, forWhat, text, right, success) {
+        var successButton = $('<button/>', {
+            class: 'btn' +
+            (right ? ' pull-right ' : ' pull-left ') +
+            (success ? ' btn-success ' : ' btn-primary '),
+            type: 'submit',
+            text: text,
+            id: forWhat + '_custom_btn'
+        });
+        var clearfix = $('<div/>', {
+            class: 'clearfix'
+        });
+        form.append(successButton);
+        form.append(clearfix);
+        var tempId = forWhat + '_custom_btn';
+        return tempId;
+    }
+
+    /** Appending rows.
+     * Each row in the array is the <div class="row"> and may have one
+     * or more input tages.
+     * This method genertes all this element and append them to each other
+     * and to the giveb form.
+     */
+    function appendRows(form, forWhat, rows) {
+        for (var i = 0; i < rows.length; i++) {
+            var row = $('<div/>', {
+                class: 'row'
+            });
+            form.append(row);
+
+            for (var j = 0; j < rows[i].length; j++) {
+                var col = $('<div/>', {
+                    class: 'col-sm-' + rows[i][j].size
+                });
+                row.append(col);
+
+                var formGroup = $('<div/>', {
+                    class: 'form-group',
+                });
+                col.append(formGroup);
+                var label = $('<label/>', {
+                    for: rows[i][j].userFriendlyName + "_" + forWhat,
+                    text: rows[i][j].userFriendlyName
+                });
+                formGroup.append(label);
+                var input = $('<input/>', {
+                    type: 'text',
+                    class: 'form-control',
+                    name : rows[i][j].userFriendlyName.toLowerCase(),
+                    id: rows[i][j].userFriendlyName + "_" + forWhat,
+                    placeholder: rows[i][j].placeholder
+                });
+                formGroup.append(input);
+            }
+        }
+    }
 
 </script>
 
